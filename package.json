@@ -11,9 +11,12 @@
   },
   "dependencies": {
     "@codemirror/lang-javascript": "^6.1.9",
+    "@geist-ui/core": "^2.3.8",
+    "@geist-ui/icons": "^1.0.2",
     "@rollup/browser": "^3.24.0",
     "@uiw/react-codemirror": "^4.21.2",
     "codemirror": "^6.0.1",
+    "i": "^0.3.7",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "zustand": "^4.3.8"
