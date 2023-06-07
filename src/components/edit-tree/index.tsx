@@ -1,6 +1,6 @@
 import { Button } from "@geist-ui/core"
 import { FolderPlus, FilePlus } from "@geist-ui/icons"
-import React, { Fragment, useState } from "react"
+import React, { Fragment, useRef, useState } from "react"
 import { FileItem } from "../file-item"
 
 const ICON_SIZE = 22
@@ -21,35 +21,40 @@ type TreeList = (FileType | DirType)[]
 interface TreeProps {
   info: TreeList
   className?: string
+  currentDep?: number
 }
 
-const Tree: React.FC<TreeProps> = ({ info, className }) => {
+const ITEM_HEIGHT = 28
+
+const Tree: React.FC<TreeProps> = ({ info, currentDep = 1 }) => {
+  const [open, setOpen] = useState(false)
   return (
     <Fragment>
       {info.map((item, index) => {
-        if (item.type === "file") {
-          return (
+        return (
+          <Fragment key={`${index}-${item.type}-${item.name}`}>
             <FileItem
               key={`${index}-${item.type}-${item.name}`}
               type={item.type}
               title={item.name}
+              currentDep={currentDep}
               onChange={() => {
                 //
               }}
+              onClick={() => setOpen(!open)}
             ></FileItem>
-          )
-        }
 
-        return (
-          <Fragment key={`${index}-${item.type}-${item.name}`}>
-            <FileItem
-              title={item.name}
-              type={item.type}
-              onChange={() => {
-                //
-              }}
-            ></FileItem>
-            <Tree info={item.children} />
+            {item.type !== "file" && (
+              <div
+                className="tree-wrapper overflow-hidden"
+                style={{
+                  height: open ? ITEM_HEIGHT * item.children.length : 0,
+                  transition: "all ease 0.2s",
+                }}
+              >
+                <Tree info={item.children} currentDep={currentDep + 1} />
+              </div>
+            )}
           </Fragment>
         )
       })}
@@ -64,7 +69,14 @@ const data = [
     type: "dir",
     children: [
       { name: "03", type: "file" },
-      { name: "04", type: "dir", children: [{ name: "05", type: "file" }] },
+      {
+        name: "04",
+        type: "dir",
+        children: [
+          { name: "05", type: "file" },
+          { name: "06", type: "file" },
+        ],
+      },
     ],
   },
 ] as TreeList

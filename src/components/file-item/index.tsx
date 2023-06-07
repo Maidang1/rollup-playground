@@ -4,11 +4,19 @@ interface FileItem {
   type: "dir" | "file"
   title: string
   onChange: (name: string) => void
+  currentDep: number
+  onClick: () => void
 }
 
 const ICON_SIZE = 16
 
-export const FileItem: React.FC<FileItem> = ({ title, type, onChange }) => {
+export const FileItem: React.FC<FileItem> = ({
+  title,
+  type,
+  onChange,
+  currentDep,
+  onClick,
+}) => {
   const icon =
     type === "file" ? (
       <FileText size={ICON_SIZE} />
@@ -16,7 +24,13 @@ export const FileItem: React.FC<FileItem> = ({ title, type, onChange }) => {
       <Folder size={ICON_SIZE} />
     )
   return (
-    <div className="flex cursor-pointer rounded w-full py-1 px-2 file-item text-sm bg-slate-500">
+    <div
+      className="flex items-center cursor-pointer rounded w-full py-1 px-1 file-item text-sm hover:bg-gray-100"
+      style={{
+        paddingLeft: `${4 * currentDep}px`,
+      }}
+      onClick={onClick}
+    >
       <div>{icon}</div>
       <div className="ml-1">{title}</div>
     </div>
