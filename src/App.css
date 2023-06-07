@@ -1,0 +1,12 @@
+.code-content {
+  display: flex;
+  flex-direction: row;
+}
+
+.code-edit {
+  flex: 1;
+}
+
+.code-result {
+  flex: 1;
+}
