@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { ROLLUP_VERSION, compile } from "./feature/rollup"
 import CodeMirror from "@uiw/react-codemirror"
 import { javascript } from "@codemirror/lang-javascript"
@@ -54,7 +54,7 @@ function App() {
         <div className="code-result">
           <div className="flex h-full">
             <CodeMirror
-              value={compiledCode || '// click Bundle to build you code'}
+              value={compiledCode || "// click Bundle to build you code"}
               height="100%"
               extensions={[javascript({ jsx: true })]}
               className="w-full"
