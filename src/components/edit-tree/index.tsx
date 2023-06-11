@@ -1,33 +1,28 @@
 import { Button } from "@geist-ui/core"
-import { FolderPlus, FilePlus } from "@geist-ui/icons"
-import React, { Fragment, useRef, useState } from "react"
+import { FilePlus } from "@geist-ui/icons"
+import React, { Fragment, useMemo } from "react"
 import { FileItem } from "../file-item"
+import {
+  addModuleId,
+  setSelectFileId,
+  updateModuleId,
+  useCurrentSelectFileId,
+  useModuleIdStore,
+} from "../../store/module_id"
 
 const ICON_SIZE = 22
 
 interface FileType {
   name: string
   type: "file"
+  selected?: boolean
 }
-
-interface DirType {
-  name: string
-  type: "dir"
-  children: (FileType | DirType)[]
-}
-
-type TreeList = (FileType | DirType)[]
-
 interface TreeProps {
-  info: TreeList
+  info: FileType[]
   className?: string
-  currentDep?: number
 }
 
-const ITEM_HEIGHT = 28
-
-const Tree: React.FC<TreeProps> = ({ info, currentDep = 1 }) => {
-  const [open, setOpen] = useState(false)
+const Tree: React.FC<TreeProps> = ({ info }) => {
   return (
     <Fragment>
       {info.map((item, index) => {
@@ -37,24 +32,14 @@ const Tree: React.FC<TreeProps> = ({ info, currentDep = 1 }) => {
               key={`${index}-${item.type}-${item.name}`}
               type={item.type}
               title={item.name}
-              currentDep={currentDep}
-              onChange={() => {
-                //
+              active={item.selected}
+              onChange={(newName) => {
+                updateModuleId(item.name, newName)
               }}
-              onClick={() => setOpen(!open)}
-            ></FileItem>
-
-            {item.type !== "file" && (
-              <div
-                className="tree-wrapper overflow-hidden"
-                style={{
-                  height: open ? ITEM_HEIGHT * item.children.length : 0,
-                  transition: "all ease 0.2s",
-                }}
-              >
-                <Tree info={item.children} currentDep={currentDep + 1} />
-              </div>
-            )}
+              onClick={() => {
+                setSelectFileId(item.name)
+              }}
+            />
           </Fragment>
         )
       })}
@@ -62,53 +47,28 @@ const Tree: React.FC<TreeProps> = ({ info, currentDep = 1 }) => {
   )
 }
 
-const data = [
-  { name: "01", type: "file" },
-  {
-    name: "02",
-    type: "dir",
-    children: [
-      { name: "03", type: "file" },
-      {
-        name: "04",
-        type: "dir",
-        children: [
-          { name: "05", type: "file" },
-          { name: "06", type: "file" },
-        ],
-      },
-    ],
-  },
-] as TreeList
-
 const TreeList = () => {
-  const handleFileAdd = () => {
-    console.log("handleFileAdd")
-    const defaultFileItem = {
-      name: `file-${treeList.length}`,
+  const files = useModuleIdStore((state) => state.moduleIds)
+  const selectFileId = useCurrentSelectFileId((state) => state.fileId)
+  const treeList = useMemo(() => {
+    return files.map((item) => ({
+      name: item,
       type: "file",
-    }
-    setTreeList([...treeList, defaultFileItem])
-  }
-  const handleFolderAdd = () => {
-    console.log("handleFolderAdd")
-  }
-
-  const [treeList, setTreeList] = useState<any[]>([])
+      selected: selectFileId === item,
+    })) as FileType[]
+  }, [files, selectFileId])
   return (
     <div>
       <div className="flex text-sm items-center">
         <Button
           icon={<FilePlus size={ICON_SIZE} />}
-          onClick={handleFileAdd}
-        ></Button>
-        <Button
-          icon={<FolderPlus size={ICON_SIZE} className="ml-2" />}
-          onClick={handleFolderAdd}
+          onClick={() => {
+            addModuleId(`file-${files.length}`)
+          }}
         ></Button>
       </div>
-      <div className="mx-auto pl-2 pr-5 mt-2 relative">
-        <Tree info={data} />
+      <div className="mx-auto pl-2 pr-5 mt-2 relative x-[60px]">
+        <Tree info={treeList} />
       </div>
     </div>
   )
