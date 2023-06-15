@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useMemo } from "react"
 import { ROLLUP_VERSION, compile } from "./feature/rollup"
 import CodeMirror from "@uiw/react-codemirror"
 import { javascript } from "@codemirror/lang-javascript"
@@ -10,19 +10,20 @@ import {
   getModuleCode,
   setModuleCode,
   useCurrentSelectFileId,
+  getModuleId,
+  useModuleIdStore,
 } from "./store/module_id"
+import { ConfigModal } from "./components/rollup-config"
+import { useOutputCode } from "./store/output"
+import CodeBlock from "./components/code-block"
 
 function App() {
   const selectFileId = useCurrentSelectFileId((state) => state.fileId)
-  const [compiledCode, setCompiledCode] = useState("")
-  const handleBundle = async () => {
-    const code = await compile({ input: "virtual" })
-    console.log(code)
-    setCompiledCode(code)
-  }
+  const moduleId = useModuleIdStore.getState().moduleIds
+  const outputCodeMap = useOutputCode((state) => state.outputCode)
 
   return (
-    <div className="h-screen">
+    <div className="h-screen overflow-hidden">
       <div className="flex items-center relative h-12 justify-between px-2">
         <div className="font-bold text-xl">
           Rollup Version: {ROLLUP_VERSION}
@@ -31,10 +32,11 @@ function App() {
           auto
           type="success-light"
           className="text-xl mr-3"
-          onClick={handleBundle}
+          onClick={() => compile({})}
         >
           Bundle
         </Button>
+        <ConfigModal />
       </div>
       <div className="code-content h-full">
         <div className="code-edit">
@@ -48,19 +50,15 @@ function App() {
               onChange={(value) => {
                 setModuleCode(selectFileId, value)
               }}
+              theme="dark"
             />
           </div>
         </div>
-        <div className="code-result">
-          <div className="flex h-full">
-            <CodeMirror
-              value={compiledCode || "// click Bundle to build you code"}
-              height="100%"
-              extensions={[javascript({ jsx: true })]}
-              className="w-full"
-              readOnly
-              editable={false}
-            />
+        <div className="code-result px-2 border-l border-solid">
+          <div>
+            {moduleId.map((id) => (
+              <CodeBlock code={outputCodeMap[id] || ""} key={id} title={id} />
+            ))}
           </div>
         </div>
       </div>
