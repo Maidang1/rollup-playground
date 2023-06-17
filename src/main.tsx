@@ -1,15 +1,11 @@
 import React from "react"
 import ReactDOM from "react-dom/client"
-import { CssBaseline, GeistProvider } from "@geist-ui/core"
 
 import App from "./App.tsx"
 import "./index.css"
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
-    <GeistProvider>
-      <CssBaseline />
-      <App />
-    </GeistProvider>
+    <App />
   </React.StrictMode>
 )

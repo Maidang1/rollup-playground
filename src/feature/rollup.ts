@@ -1,8 +1,8 @@
-import { rollup, VERSION, Plugin } from "@rollup/browser/dist/rollup.browser"
+import { rollup, VERSION } from "@rollup/browser/dist/rollup.browser"
 
 import { getModuleCode, getModuleId } from "../store/module_id"
 import { getRollupConfig } from "../store/rollup_config"
-import { setOutputCode } from "../store/output"
+import { getEntryIds } from "../store/entry-id"
 
 export const ROLLUP_VERSION = VERSION
 
@@ -18,32 +18,21 @@ const resolveVirtual = () => {
   return {
     name: "resolve-virtual",
     load(id: string) {
-      console.log("load id =====>", id)
       if (isVirtualModule(id)) {
         const moduleCode = getModuleCode(id) || ""
         return moduleCode
       }
-
       return null
     },
-
     resolveId(id: string) {
-      console.log("resolveId ====>", id)
       return id.replace("./", "")
-    },
-    generateBundle(_options: any, bundle: any) {
-      const outputCodeMap: Record<string, string> = {}
-      Object.keys(bundle).forEach((key) => {
-        const { code, facadeModuleId } = bundle[key]
-        outputCodeMap[facadeModuleId] = code
-      })
-      setOutputCode(outputCodeMap)
     },
   }
 }
 
 export const compile = async (options: RollupOptions) => {
   const rollupConfig = getRollupConfig()
+  const entryIds = getEntryIds()
   const plugins = Array.isArray(options.plugins)
     ? options.plugins
     : [options.plugins]
@@ -51,7 +40,7 @@ export const compile = async (options: RollupOptions) => {
     ...options,
     ...rollupConfig,
     plugins: [resolveVirtual(), ...plugins],
-    input: rollupConfig.input || options.input || "virtual",
+    input: entryIds || rollupConfig.input || options.input || "virtual",
   })
 
   const outputOption = Array.isArray(options.output)
@@ -63,5 +52,6 @@ export const compile = async (options: RollupOptions) => {
       ...rollupConfig.output,
     }
   )
-  return res.output[0].code
+
+  return res.output
 }

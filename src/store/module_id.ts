@@ -8,22 +8,31 @@ interface ModuleCode {
   codeMap: Map<string, string>
 }
 const defaultCodeMap = new Map()
-defaultCodeMap.set("virtual", "export default a = 2;")
+
+const defaultCode = `export const qux = 'QUX';`
+
+defaultCodeMap.set("main.js", defaultCode)
 export const useModuleIdStore = create<ModuleId>(() => ({
-  moduleIds: ["virtual"],
+  moduleIds: ["main.js"],
 }))
 export const useModuleCodeStore = create<ModuleCode>(() => ({
   codeMap: defaultCodeMap,
 }))
 
 export const useCurrentSelectFileId = create<{ fileId: string }>(() => ({
-  fileId: "virtual",
+  fileId: "main.js",
 }))
 
 export const addModuleId = (id: string | string[]) => {
   const idArr = Array.isArray(id) ? id : [id]
   useModuleIdStore.setState((state) => ({
     moduleIds: [...state.moduleIds, ...idArr],
+  }))
+}
+
+export const deleteModuleId = (id: string) => {
+  useModuleIdStore.setState((state) => ({
+    moduleIds: state.moduleIds.filter((item) => item !== id),
   }))
 }
 
