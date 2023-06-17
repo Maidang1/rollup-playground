@@ -10,17 +10,13 @@ interface ModuleCode {
 const defaultCodeMap = new Map()
 
 const defaultCode = `export const qux = 'QUX';`
-
 defaultCodeMap.set("main.js", defaultCode)
+
 export const useModuleIdStore = create<ModuleId>(() => ({
   moduleIds: ["main.js"],
 }))
 export const useModuleCodeStore = create<ModuleCode>(() => ({
   codeMap: defaultCodeMap,
-}))
-
-export const useCurrentSelectFileId = create<{ fileId: string }>(() => ({
-  fileId: "main.js",
 }))
 
 export const addModuleId = (id: string | string[]) => {
@@ -64,8 +60,3 @@ export const updateModuleCodeKey = (preKey: string, newKey: string) => {
 
 export const getModuleCode = (id: string) =>
   useModuleCodeStore.getState().codeMap.get(id)
-
-export const getSelectFileId = () => useCurrentSelectFileId.getState().fileId
-export const setSelectFileId = (id: string) => {
-  useCurrentSelectFileId.setState(() => ({ fileId: id }))
-}
